@@ -14,7 +14,7 @@ const Contact = () => {
       <div className='my-10 flex flex-col justify-center md:flex-row gap-10 mb-28'>
         <img className='w-full md:max-w-[480px]' src={assets.contact_img} alt="" />
         <div className='flex flex-col justify-center items-start gap-6'>
-          <p className='font-semibold text-xl text-gray-600'>Our Store</p>
+          <p className='font-semibold text-xl text-gray-600'>Our Gallery Studio</p>
           <p className=' text-gray-500'>Strada Mihai Eminescu <br /> Bucharest</p>
           <p className=' text-gray-500'>Tel: (415) 555-0132 <br /> Email: theartmarket@support.com</p>
           <p className='font-semibold text-xl text-gray-600'>Become a featured artist</p>

@@ -16,7 +16,7 @@ const Contact = () => {
         <div className='flex flex-col justify-center items-start gap-6'>
           <p className='font-semibold text-xl text-gray-600'>Our Gallery Studio</p>
           <p className=' text-gray-500'>Strada Mihai Eminescu <br /> Bucharest</p>
-          <p className=' text-gray-500'>Tel: (415) 555-0132 <br /> Email: theartmarket@support.com</p>
+          <p className=' text-gray-500'>Tel: (+40) 777-777-777 <br /> Email: theartmarket@support.com</p>
           <p className='font-semibold text-xl text-gray-600'>Become a featured artist</p>
           <p className=' text-gray-500'>Learn more about how to apply.</p>
           <button className='border border-black px-8 py-4 text-sm hover:bg-black hover:text-white transition-all duration-500'>Apply</button>

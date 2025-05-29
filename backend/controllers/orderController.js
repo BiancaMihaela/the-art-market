@@ -180,4 +180,40 @@ const updateStatus = async (req,res) => {
     }
 }
 
-export {capturePaypalOrder, createPaypalOrder,placeOrder, allOrders, userOrders, updateStatus}
+const getTopCustomers = async (req, res) => {
+  try {
+    const orders = await orderModel.find({});
+    const userStats = {};
+
+    for (const order of orders) {
+      const uid = order.userId;
+      if (!userStats[uid]) {
+        userStats[uid] = { userId: uid, totalAmount: 0, orderCount: 0 };
+      }
+      userStats[uid].totalAmount += order.amount;
+      userStats[uid].orderCount += 1;
+    }
+
+    const sorted = Object.values(userStats).sort((a, b) => b.totalAmount - a.totalAmount).slice(0, 3);
+
+    const enriched = await Promise.all(
+      sorted.map(async (entry) => {
+        const user = await userModel.findById(entry.userId).select('fullName');
+        return {
+          userId: entry.userId,
+          fullName: user ? user.fullName : 'Unknown User',
+          totalAmount: entry.totalAmount,
+          orderCount: entry.orderCount
+        };
+      })
+    );
+
+    res.json({ success: true, customers: enriched });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+
+export {capturePaypalOrder, createPaypalOrder,placeOrder, allOrders, userOrders, updateStatus,getTopCustomers}

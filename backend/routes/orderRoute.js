@@ -3,6 +3,7 @@ import {placeOrder, allOrders, userOrders, updateStatus} from '../controllers/or
 import adminAuth  from '../middleware/adminAuth.js'
 import authUser from '../middleware/auth.js'
 import { createPaypalOrder, capturePaypalOrder } from '../controllers/orderController.js'
+import { getTopCustomers } from '../controllers/orderController.js';
 
 const orderRouter = express.Router()
 
@@ -20,5 +21,5 @@ orderRouter.post('/userorders',authUser,userOrders)
 orderRouter.post('/paypal/create', authUser, createPaypalOrder)
 orderRouter.post('/paypal/capture', authUser, capturePaypalOrder)
 
-
+orderRouter.post('/topCustomers', adminAuth, getTopCustomers);
 export default orderRouter

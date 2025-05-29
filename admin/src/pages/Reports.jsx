@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import Sales from './reports/Sales'
 import OrdersReport from './reports/OrdersReport';
+import TopCustomers from './reports/TopCustomers'
 
 const Reports = (token) => {
   const [activeTab, setActiveTab] = useState('sales');
@@ -9,8 +10,7 @@ const Reports = (token) => {
     switch (activeTab) {
       case 'sales': return <Sales token={token} />;
       case 'orders': return <OrdersReport token={token} />;
-      case 'stocks':
-        return <div>Stocks Report Content</div>;
+      case 'topCustomers': return <TopCustomers token={token} />;
       default:
         return null;
     }
@@ -33,10 +33,10 @@ const Reports = (token) => {
           Orders
         </button>
         <button
-          className={`py-2 px-4 ${activeTab === 'stocks' ? 'border-b-2 border-black font-medium' : 'text-gray-500'}`}
-          onClick={() => setActiveTab('stocks')}
+          className={`py-2 px-4 ${activeTab === 'topCustomers' ? 'border-b-2 border-black font-medium' : 'text-gray-500'}`}
+          onClick={() => setActiveTab('topCustomers')}
         >
-          Stocks
+          Top Customers
         </button>
       </div>
 

@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken'
+import userModel from "../models/userModel.js"
 
 const adminAuth = async (req,res,next) => {
     try {
@@ -7,8 +8,10 @@ const adminAuth = async (req,res,next) => {
             return res.json({success:false,message:"Not Authorized Login Again"})
         }
         const token_decode = jwt.verify(token,process.env.JWT_SECRET);
-        if (token_decode !== process.env.ADMIN_EMAIL + process.env.ADMIN_PASSWORD) {
-            return res.json({success:false,message:"Not Authorized Login Again"})
+      const userId = token_decode.id;
+        const userGroup = userModel.findById(userId)?.userGroup;
+        if (userGroup !== 'admin') {
+            return res.json({ success: false, message: "Not Authorized" })
         }
         next()
     } catch (error) {

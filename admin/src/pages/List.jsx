@@ -5,12 +5,17 @@ import { toast } from 'react-toastify'
 
 const List = ({ token }) => {
 
+  
+  const userGroup = localStorage.getItem('userGroup'); // poate fi "admin" sau null
   const [list, setList] = useState([])
 
   const fetchList = async () => {
     try {
 
-      const response = await axios.get(backendUrl + '/api/product/list')
+      const response = await axios.get(backendUrl + '/api/product/listAdminPanel', {
+        headers: { token: `${token}` }
+});
+
       if (response.data.success) {
         setList(response.data.products.reverse());
       }
@@ -70,7 +75,7 @@ const List = ({ token }) => {
               <p>{item.name}</p>
               <p>{item.category}</p>
               <p>{currency}{item.price}</p>
-              <p onClick={()=>removeProduct(item._id)} className='text-right md:text-center cursor-pointer text-lg'>X</p>
+              <p onClick={()=>removeProduct(item._id)} className='text-right md:text-center cursor-pointer text-lg'>Remove</p>
             </div>
           ))
         }

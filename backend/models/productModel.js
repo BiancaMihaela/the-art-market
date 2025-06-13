@@ -9,7 +9,8 @@ const productSchema = new mongoose.Schema({
     subCategory: { type: String, required: true },
     bestseller: { type: Boolean },
     outOfStock:{type:Boolean, default: false},
-    date: { type: Number, required: true }
+    date: { type: Number, required: true },
+    artistId: { type: String, required: true }
 })
 
 const productModel  = mongoose.models.product || mongoose.model("product",productSchema);

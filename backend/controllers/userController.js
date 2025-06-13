@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import userModel from "../models/userModel.js";
 
 const createToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET)
+  return jwt.sign({ id }, process.env.JWT_SECRET)
 }
 
 const getUserIdFromHeader = (req) => {
@@ -78,7 +78,10 @@ const loginUser = async (req, res) => {
       return res.json({ success: false, message: "Invalid credentials" });
     }
     const token = createToken(user._id);
-    res.json({ success: true, token });
+    res.json({
+      success: true,
+      token
+    });
   } catch (error) {
     console.error(error);
     res.json({ success: false, message: error.message });
@@ -103,7 +106,35 @@ const registerUser = async (req, res) => {
     }
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-    const newUser = new userModel({ fullName:name, email, password: hashedPassword });
+    const newUser = new userModel({ fullName: name, email, password: hashedPassword });
+    const saved = await newUser.save();
+    const token = createToken(saved._id);
+    res.json({ success: true, token });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+const registerArtist = async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+    if (!validator.isEmail(email)) {
+      return res.json({ success: false, message: "Please enter a valid email" });
+    }
+    if (password.length < 8) {
+      return res.json({
+        success: false,
+        message: "Please enter a strong password",
+      });
+    }
+    const exists = await userModel.findOne({ email });
+    if (exists) {
+      return res.json({ success: false, message: "User already exists" });
+    }
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    const newUser = new userModel({ fullName: name, email, password: hashedPassword, userGroup: 'artist' });
     const saved = await newUser.save();
     const token = createToken(saved._id);
     res.json({ success: true, token });
@@ -116,24 +147,55 @@ const registerUser = async (req, res) => {
 const adminLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
-    if (
-      email === process.env.ADMIN_EMAIL &&
-      password === process.env.ADMIN_PASSWORD
-    ) {
-      const token = jwt.sign(email + password, process.env.JWT_SECRET);
-      return res.json({ success: true, token });
+
+    // Caută utilizatorul în baza de date
+    const user = await userModel.findOne({ email });
+    if (!user) {
+      return res.json({ success: false, message: "User does not exist" });
     }
-    res.json({ success: false, message: "Invalid credentials" });
+
+    // Verifică parola
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.json({ success: false, message: "Invalid credentials" });
+    }
+
+    // Permite logarea doar pentru userGroup: admin sau artist
+    if (user.userGroup !== "admin" && user.userGroup !== "artist") {
+      return res.json({ success: false, message: "Access denied" });
+    }
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+
+    res.json({
+      success: true,
+      token,
+      userGroup: user.userGroup
+    });
+
   } catch (error) {
     console.error(error);
     res.json({ success: false, message: error.message });
   }
 };
 
+const getArtists = async (req, res) => {
+  try {
+    const artists = await userModel.find({ userGroup: 'artist' }).select('fullName _id');
+    res.json({ success: true, artists });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+
 export {
   loginUser,
   registerUser,
+  registerArtist,
   adminLogin,
   getProfile,
   updateProfile,
+  getArtists
 };

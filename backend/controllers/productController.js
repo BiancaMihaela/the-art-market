@@ -1,11 +1,13 @@
 import { v2 as cloudinary } from "cloudinary"
 import productModel from "../models/productModel.js"
+import jwt from "jsonwebtoken";
+import userModel from "../models/userModel.js";
 
 // function for add product
 const addProduct = async (req, res) => {
     try {
 
-        const { name, description, price, category, subCategory, bestseller, outOfStock } = req.body
+        const { name, description, price, category, subCategory, bestseller, outOfStock, artistId } = req.body
 
         const image1 = req.files.image1 && req.files.image1[0]
         const image2 = req.files.image2 && req.files.image2[0]
@@ -30,6 +32,7 @@ const addProduct = async (req, res) => {
             bestseller: bestseller === "true" ? true : false,
             outOfStock,
             image: imagesUrl,
+            artistId,
             date: Date.now()
         }
 
@@ -59,6 +62,30 @@ const listProducts = async (req, res) => {
     }
 }
 
+// function for list product
+const listProductsAdminPanel = async (req, res) => {
+  try {
+    const token = req.headers.token;
+    if (!token) return res.status(401).json({ success: false, message: "Token missing" });
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const id = decoded.id;
+    const user = await userModel.findById(id);
+    const userGroup = user.userGroup;
+    let products;
+    if (userGroup === 'admin') {
+      products = await productModel.find({});
+    } else {
+      products = await productModel.find({ artistId: user.id });
+    }
+
+    res.json({ success: true, products });
+  } catch (error) {
+    console.error(error);
+    res.status(401).json({ success: false, message: "Invalid token" });
+  }
+};
+
 // function for removing product
 const removeProduct = async (req, res) => {
     try {
@@ -86,4 +113,4 @@ const singleProduct = async (req, res) => {
     }
 }
 
-export { listProducts, addProduct, removeProduct, singleProduct }
+export { listProducts, listProductsAdminPanel, addProduct, removeProduct, singleProduct }
